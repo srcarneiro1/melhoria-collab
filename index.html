@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ocorrência de Clientes 2.0</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Roboto+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: PRD em coluna única com sumário fixo à esquerda (≥1120px), seções numeradas 01–10, mesma estrutura do PRD Pedidos Sem Saldo. */
+:root{
+  --ground:#f6f6f8; --ground-2:#eeeef1; --surface:#ffffff; --surface-2:#f1f1f4; --line:#d9d9df; --line-soft:#e6e6ea;
+  --text:#24252d; --text-2:#5a5b66; --text-3:#7d7e89; --heading:#2f3039;
+  --brand-grey:#494a56; --brand-grey-2:#3a3b45; --red:#db0812; --red-ink:#b5060e; --red-soft:rgba(219,8,18,.08);
+  --amber:#a86a0b; --amber-soft:rgba(232,163,61,.14); --teal:#137a5f; --teal-soft:rgba(47,192,155,.13); --blue:#3d5bb0; --blue-soft:rgba(124,149,221,.14);
+  --code-bg:#f3f3f6; --hero-text:#ffffff; --hero-sub:#d9d9de;
+  --f-sans:'Roboto','Helvetica Neue',Arial,sans-serif; --f-cond:'Roboto Condensed','Roboto',Arial,sans-serif; --f-mono:'IBM Plex Mono',ui-monospace,'Courier New',monospace;
+  --r-sm:5px; --r:8px; --r-lg:14px; --maxw:1180px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#14151a; --ground-2:#191b21; --surface:#1f2129; --surface-2:#262832; --line:#33353f; --line-soft:#25272f;
+  --text:#d3d5dd; --text-2:#a4a6b3; --text-3:#80828c; --heading:#ffffff;
+  --red-ink:#ff4a53; --red-soft:rgba(219,8,18,.14); --amber:#e8a33d; --amber-soft:rgba(232,163,61,.14); --teal:#2fc09b; --teal-soft:rgba(47,192,155,.14); --blue:#7c95dd; --blue-soft:rgba(124,149,221,.14);
+  --code-bg:#101116; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --ground:#14151a; --ground-2:#191b21; --surface:#1f2129; --surface-2:#262832; --line:#33353f; --line-soft:#25272f;
+  --text:#d3d5dd; --text-2:#a4a6b3; --text-3:#80828c; --heading:#ffffff;
+  --red-ink:#ff4a53; --red-soft:rgba(219,8,18,.14); --amber:#e8a33d; --amber-soft:rgba(232,163,61,.14); --teal:#2fc09b; --teal-soft:rgba(47,192,155,.14); --blue:#7c95dd; --blue-soft:rgba(124,149,221,.14);
+  --code-bg:#101116; color-scheme:dark }
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--text);font-family:var(--f-sans);font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:70;background:var(--brand-grey-2)}
+a{color:var(--red-ink);text-decoration:none}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* topbar */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:60;background:var(--brand-grey-2);color:#fff}
+.topbar .fio{height:2px;background:var(--red)}
+.topbar-in{max-width:var(--maxw);margin:0 auto;padding-block:9px;display:flex;align-items:center;gap:14px}
+.logochip{background:#fff;border-radius:var(--r-sm);padding:5px 8px;display:flex;flex:none}
+.logochip img{width:72px;height:auto;display:block}
+.tb-title{font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.09em;font-size:13px;color:#c9cad2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tb-title b{color:#fff}
+.tb-right{margin-left:auto;display:flex;gap:8px}
+.pill{font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:11px;padding:4px 9px;border-radius:100px;border:1px solid #5a5b66;color:#d9d9de;white-space:nowrap}
+.pill.red{background:var(--red);border-color:var(--red);color:#fff}
+@media (max-width:640px){.tb-title{display:none}.pill.hide-sm{display:none}}
+
+/* hero */
+.hero{position:relative;overflow:hidden;background:linear-gradient(180deg,#4f505c 0%,#494a56 100%);color:var(--hero-text)}
+.hero::after{content:"";position:absolute;top:0;right:0;width:min(46%,520px);height:100%;background:#3a3b45;clip-path:polygon(38% 0,100% 0,100% 100%,86% 100%);pointer-events:none}
+.hero::before{content:"";position:absolute;top:0;right:0;width:min(30%,320px);height:100%;background:var(--red);opacity:.85;clip-path:polygon(80% 0,100% 0,100% 42%,88% 42%);pointer-events:none;z-index:1}
+.hero-in{position:relative;z-index:2;max-width:var(--maxw);margin:0 auto;padding-block:56px 46px}
+.tag{display:inline-block;background:var(--red);color:#fff;font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:11px;padding:5px 11px;border-radius:3px}
+h1{font-weight:900;letter-spacing:-.022em;line-height:1.04;text-wrap:balance;font-size:clamp(2.1rem,5.6vw,3.7rem);margin:18px 0 0;color:#fff}
+h1 .thin{font-weight:300;color:var(--hero-sub);display:block;font-size:.44em;letter-spacing:-.005em;margin-top:14px;max-width:34ch}
+.hero .fio{width:56px;height:3px;background:var(--red);margin:24px 0 18px}
+.lede{max-width:62ch;font-weight:300;font-size:clamp(1rem,1.9vw,1.14rem);color:var(--hero-sub);margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:10px 34px;margin:30px 0 0;padding-top:20px;border-top:1px solid rgba(255,255,255,.14)}
+.meta div{min-width:120px}
+.meta dt{font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;color:#a9aab4;margin:0 0 3px}
+.meta dd{margin:0;font-size:14px;color:#fff}
+
+/* shell */
+.shell{max-width:var(--maxw);margin:0 auto}
+@media (min-width:1120px){.shell{display:grid;grid-template-columns:212px minmax(0,1fr);gap:52px;align-items:start}}
+.toc{display:none}
+@media (min-width:1120px){
+  .toc{display:block;position:sticky;top:76px;padding:38px 0 40px}
+  .toc-h{font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.11em;font-size:10.5px;color:var(--text-3);margin:0 0 12px}
+  .toc a{display:flex;gap:9px;align-items:baseline;padding:5px 0;font-size:13.5px;color:var(--text-2);line-height:1.35}
+  .toc a span{font-family:var(--f-mono);font-size:11px;color:var(--text-3);flex:none}
+  .toc a:hover,.toc a.on{color:var(--heading)}
+  .toc a.on span{color:var(--red-ink)}
+}
+.toc-m{display:flex;gap:6px;overflow-x:auto;padding:16px 0 4px;scrollbar-width:none}
+.toc-m a{flex:none;font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:11px;padding:6px 10px;border-radius:100px;border:1px solid var(--line);background:var(--surface);color:var(--text-2)}
+@media (min-width:1120px){.toc-m{display:none}}
+main{padding:8px 0 40px;min-width:0}
+section{padding:44px 0;border-top:1px solid var(--line)}
+section:first-child{border-top:0}
+.sec-h{display:flex;gap:13px;align-items:flex-start;margin-bottom:8px}
+.sec-h .bar{width:4px;background:var(--red);border-radius:2px;flex:none;align-self:stretch;min-height:34px}
+.sec-h .num{font-family:var(--f-mono);font-size:12px;color:var(--red-ink);display:block;margin-bottom:4px}
+h2{font-weight:900;letter-spacing:-.015em;font-size:clamp(1.4rem,3.4vw,1.9rem);margin:0;color:var(--heading);text-wrap:balance;line-height:1.14}
+h3{font-weight:700;font-size:1.09rem;margin:32px 0 10px;color:var(--heading);text-wrap:balance}
+h4{font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:11.5px;color:var(--text-3);margin:24px 0 10px}
+p{max-width:68ch;font-weight:300}
+p strong,li strong,td strong{font-weight:700;color:var(--heading)}
+.sub{max-width:68ch;color:var(--text-2);font-weight:300;margin:12px 0 0}
+ul,ol{max-width:70ch;font-weight:300;padding-left:20px}
+li{margin:6px 0}
+ul{list-style:none;padding-left:0}
+ul li{position:relative;padding-left:18px}
+ul li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:7px;background:var(--red)}
+ul.grey li::before{background:var(--brand-grey)}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--code-bg);border:1px solid var(--line);padding:1px 5px;border-radius:4px}
+
+.grid{display:grid;gap:14px;margin-top:20px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);padding:18px 18px 20px;min-width:0}
+.card.new{border-top:3px solid var(--red)}
+.card h5{margin:0 0 7px;font-size:15px;font-weight:700;color:var(--heading)}
+.card p{margin:0;font-size:14px;color:var(--text-2)}
+.card ul{font-size:14px;margin:8px 0 0}
+.kicker{font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;color:var(--text-3);display:block;margin-bottom:8px}
+.card.new .kicker{color:var(--red-ink)}
+
+.stats{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-top:24px}
+.stat{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);padding:18px}
+.stat .n{font-weight:900;font-size:2.1rem;line-height:1;color:var(--red-ink);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.stat .n small{font-size:.44em;font-weight:700;color:var(--text-2);letter-spacing:0}
+.stat .l{font-size:13px;color:var(--text-2);margin-top:9px;font-weight:300}
+
+.callout{background:var(--surface-2);border:1px solid var(--line);border-left:4px solid var(--amber);border-radius:var(--r);padding:16px 18px;margin:22px 0}
+.callout.red{border-left-color:var(--red)} .callout.teal{border-left-color:var(--teal)}
+.callout p{margin:0;max-width:70ch;font-size:14.5px}
+.callout .kicker{color:var(--amber)} .callout.red .kicker{color:var(--red-ink)} .callout.teal .kicker{color:var(--teal)}
+
+.tw{overflow-x:auto;margin-top:20px;border:1px solid var(--line-soft);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:600px;font-size:14px}
+th{font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:11px;text-align:left;color:#fff;background:var(--brand-grey);padding:9px 13px;white-space:nowrap}
+td{padding:10px 13px;border-top:1px solid var(--line-soft);font-weight:300;vertical-align:top}
+tbody tr:nth-child(even) td{background:var(--ground-2)}
+td.c{text-align:center}
+
+.b{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:10.5px;padding:3px 8px;border-radius:100px;white-space:nowrap;border:1px solid transparent}
+.b::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.b.ss{color:var(--red-ink);background:var(--red-soft);border-color:var(--red-soft)}
+.b.ok{color:var(--teal);background:var(--teal-soft)}
+.b.pend{color:var(--blue);background:var(--blue-soft)}
+.b.prod{color:var(--amber);background:var(--amber-soft)}
+.b.fila{color:var(--text-2);background:var(--surface-2);border-color:var(--line)}
+
+figure{margin:24px 0 0;background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r-lg);padding:18px 16px 14px}
+figure .fw{overflow-x:auto}
+figure .fw pre.mermaid{margin:0;min-width:640px;background:transparent;text-align:center}
+figcaption{margin-top:12px;padding-top:10px;border-top:1px solid var(--line-soft);font-size:13px;color:var(--text-3);font-weight:300;max-width:80ch}
+figcaption b{color:var(--text-2);font-weight:700}
+.switch{display:inline-flex;border:1px solid var(--line);border-radius:100px;overflow:hidden;background:var(--surface);margin-top:18px}
+.switch button{font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:11px;padding:7px 14px;background:none;border:0;color:var(--text-3);cursor:pointer}
+.switch button[aria-pressed="true"]{background:var(--brand-grey);color:#fff}
+
+.gk{background:var(--code-bg);border:1px solid var(--line);border-radius:var(--r);padding:15px 17px;margin-top:14px;overflow-x:auto;font-family:var(--f-mono);font-size:12.6px;line-height:1.75;white-space:pre}
+.gk .kw{color:var(--red-ink);font-weight:600} .gk .sc{color:var(--heading);font-weight:600} .gk .st{color:var(--amber)} .gk .cm{color:var(--text-3)}
+
+/* formulário de exemplo */
+.mock{display:grid;gap:14px;margin-top:20px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:860px){.mock{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)}}
+.form{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.form-h{background:var(--brand-grey);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.form-h b{font-size:14.5px}
+.form-h span{font-family:var(--f-cond);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#d9d9de}
+.form-b{padding:16px;display:grid;gap:12px}
+.fld label{display:block;font-size:13px;font-weight:700;color:var(--heading);margin-bottom:4px}
+.fld label i{font-style:normal;color:var(--red-ink)}
+.fld input,.fld select,.fld textarea{width:100%;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2);color:var(--text)}
+.fld textarea{min-height:84px;resize:vertical}
+.fld .help{font-size:12px;color:var(--text-3);margin-top:4px}
+.fld .err{font-size:12px;color:var(--red-ink);margin-top:4px;font-weight:500}
+.fld.bad input,.fld.bad textarea,.fld.bad .drop{border-color:var(--red)}
+.row2{display:grid;gap:12px;grid-template-columns:minmax(0,1.4fr) minmax(0,.6fr)}
+.drop{border:1.5px dashed var(--line);border-radius:8px;padding:12px;font-size:13px;color:var(--text-2);background:var(--surface-2)}
+.drop ol{margin:6px 0 0;padding-left:18px;font-size:12.5px}
+.drop ol li{margin:3px 0}
+.form-f{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:0 16px 16px}
+.btn{font:inherit;font-weight:700;font-size:14px;border-radius:7px;padding:9px 16px;cursor:pointer;border:1px solid var(--red);background:var(--red);color:#fff}
+.btn.ghost{background:transparent;color:var(--text);border-color:var(--line)}
+.out{font-size:13px;color:var(--text-2)}
+.out.okc{color:var(--teal);font-weight:700}
+
+/* tipos de foto */
+.ph-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px}
+.ph-tabs button{font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:11px;padding:6px 11px;border-radius:100px;border:1px solid var(--line);background:var(--surface);color:var(--text-2);cursor:pointer}
+.ph-tabs button[aria-selected="true"]{background:var(--red);border-color:var(--red);color:#fff}
+.shots{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));margin-top:14px}
+.shot{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);overflow:hidden}
+.shot .pic{aspect-ratio:4/3;max-width:100%;background:var(--surface-2);display:grid;place-items:center;border-bottom:1px solid var(--line-soft)}
+.shot .pic svg{width:58%;height:auto}
+.shot .tx{padding:10px 12px}
+.shot .tx b{display:block;font-size:13.5px;color:var(--heading)}
+.shot .tx span{font-size:12.5px;color:var(--text-2);font-weight:300}
+.shot .ix{font-family:var(--f-mono);font-size:11px;color:var(--red-ink)}
+.svgln{stroke:var(--text-3);fill:none;stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.svgfill{fill:var(--surface);stroke:var(--text-3);stroke-width:3}
+.svgred{stroke:var(--red);fill:none;stroke-width:3.5;stroke-linecap:round}
+.svgredf{fill:var(--red)}
+
+.yesno{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-top:18px}
+.yn{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);padding:16px 18px}
+.yn h5{margin:0 0 6px;font-size:14px;display:flex;gap:8px;align-items:center;color:var(--heading)}
+.yn ul{font-size:14px;margin:0}
+.yn.no ul li::before{background:var(--brand-grey)}
+
+.steps{counter-reset:s;display:grid;gap:10px;margin-top:18px}
+.step{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);padding:14px 16px 14px 56px;position:relative;min-width:0}
+.step::before{counter-increment:s;content:counter(s,decimal-leading-zero);position:absolute;left:16px;top:14px;font-family:var(--f-mono);font-size:13px;font-weight:600;color:var(--red-ink)}
+.step b{display:block;color:var(--heading);font-size:14.5px}
+.step p{margin:4px 0 0;font-size:14px;max-width:none}
+.step .where{font-family:var(--f-cond);text-transform:uppercase;letter-spacing:.08em;font-size:10.5px;font-weight:700;color:var(--text-3)}
+
+footer{border-top:2px solid var(--red);background:var(--brand-grey-2);margin-top:30px}
+.foot-in{max-width:var(--maxw);margin:0 auto;padding-block:22px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
+.foot-in p{margin:0;font-size:12.5px;color:#c9cad2;max-width:none}
+
+/* comparação de fluxo */
+.cmp-head{display:none}
+@media (min-width:760px){.cmp-head{display:grid;grid-template-columns:190px minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:22px;font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:11.5px}
+.cmp-head .h-a{color:var(--text-3)} .cmp-head .h-p{color:var(--red-ink)}}
+.cmp{display:grid;gap:10px;margin-top:16px;position:relative}
+.crow{display:grid;gap:8px;grid-template-columns:minmax(0,1fr);background:var(--ground-2);border-radius:var(--r);padding:10px}
+@media (min-width:760px){.crow{grid-template-columns:190px minmax(0,1fr) minmax(0,1fr);gap:12px;background:none;padding:0}}
+.cph{display:flex;flex-direction:column;justify-content:center;min-width:0}
+@media (min-width:760px){.cph{border-left:3px solid var(--brand-grey);padding-left:12px}}
+.cph .cn{font-weight:700;color:var(--heading);font-size:14.5px;line-height:1.3}
+.cph .cs{font-size:12px;color:var(--text-3)}
+.cc{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);padding:12px 14px;min-width:0;position:relative}
+.cc b{display:block;font-size:14px;color:var(--heading);line-height:1.35;padding-right:70px}
+.cc p{margin:4px 0 0;font-size:13.5px;color:var(--text-2)}
+.cc .cl{display:block;font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.09em;font-size:10px;color:var(--text-3);margin-bottom:2px}
+@media (min-width:760px){.cc .cl{display:none}}
+.cc.warn{border-color:var(--amber);background:var(--amber-soft)}
+.cc.new{border-color:var(--red);box-shadow:inset 3px 0 0 var(--red)}
+.cc.empty b{color:var(--amber)}
+.tagx{position:absolute;top:10px;right:10px;font-family:var(--f-cond);font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:10px;padding:2px 7px;border-radius:100px}
+.tagx.n{background:var(--red);color:#fff}
+.tagx.w{background:var(--amber-soft);color:var(--amber);border:1px solid var(--amber)}
+ul.br{margin:8px 0 0;font-size:13px;display:grid;gap:5px}
+ul.br li{margin:0;padding-left:0;display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:8px;align-items:baseline;color:var(--text-2)}
+ul.br li::before{display:none}
+ul.br i{font-style:normal;font-family:var(--f-cond);font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--text);background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:1px 6px;white-space:nowrap}
+ul.br i.ok{color:var(--teal);border-color:var(--teal)} ul.br i.aj{color:var(--amber);border-color:var(--amber)} ul.br i.no{color:var(--red-ink);border-color:var(--red)}
+@media (max-width:460px){ul.br li{grid-template-columns:minmax(0,1fr);gap:2px} ul.br i{justify-self:start;white-space:normal}}
+.cmp-src{font-size:12.5px;color:var(--text-3);margin-top:12px}
+</style>
+<style>
+.num-c{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+details.more{margin-top:16px;background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r)}
+details.more>summary{cursor:pointer;list-style:none;padding:12px 16px;font-weight:700;color:var(--heading);font-size:14.5px;display:flex;gap:10px;align-items:center}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--red);border-bottom:2px solid var(--red);transform:rotate(-45deg);transition:transform .15s;flex:none}
+details.more[open]>summary::before{transform:rotate(45deg)}
+details.more>summary small{font-weight:400;color:var(--text-3);font-size:12.5px;margin-left:auto}
+details.more>.in{padding:0 16px 16px;border-top:1px solid var(--line-soft)}
+details.more>.in>.tw:first-child,details.more>.in>*:first-child{margin-top:14px}
+.mv{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:860px){.mv{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.mv-col{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);overflow:hidden;min-width:0}
+.mv-col h5{margin:0;padding:10px 14px;font-size:14px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.mv-col.in h5{background:var(--teal-soft);color:var(--teal)} .mv-col.out h5{background:var(--surface-2);color:var(--text-2)}
+.mvi{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:9px 14px;border-top:1px solid var(--line-soft)}
+.mvi b{color:var(--heading);font-size:13.5px} .mvi span{grid-column:1/2;font-size:12.5px;color:var(--text-2);font-weight:300}
+.mvi em{grid-row:1/3;grid-column:2;font-style:normal;font-family:var(--f-mono);font-size:12px;color:var(--text-2);text-align:right;white-space:nowrap;align-self:center}
+.mvi em strong{display:block;font-size:14px;color:var(--heading)}
+/* simulador */
+.presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.presets button{font:inherit;font-size:12.5px;padding:6px 10px;border-radius:100px;border:1px solid var(--line);background:var(--surface);color:var(--text-2);cursor:pointer}
+.presets button:hover{border-color:var(--brand-grey);color:var(--heading)}
+.presets button.ok{border-color:var(--teal);color:var(--teal)}
+.presets button[aria-pressed="true"]{background:var(--brand-grey);border-color:var(--brand-grey);color:#fff}
+.sim{display:grid;gap:14px;grid-template-columns:minmax(0,1fr);margin-top:16px;align-items:start}
+@media (min-width:980px){.sim{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}.panel{position:sticky;top:72px}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.panel-h{background:var(--brand-grey-2);color:#fff;padding:11px 16px;font-size:14px;font-weight:700;display:flex;justify-content:space-between;gap:8px}
+.panel-h span{font-family:var(--f-cond);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#c9cad2;font-weight:700}
+.rg{padding:10px 16px 6px}
+.rg h6{margin:4px 0 6px;font-family:var(--f-cond);text-transform:uppercase;letter-spacing:.09em;font-size:10.5px;color:var(--text-3)}
+.rule{display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px;font-size:13px;padding:4px 0;align-items:start}
+.rule i{font-style:normal;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;margin-top:1px}
+.rule.ok i{background:var(--teal-soft);color:var(--teal)} .rule.ko i{background:var(--red);color:#fff} .rule.na i{background:var(--surface-2);color:var(--text-3)} .rule.wa i{background:var(--amber-soft);color:var(--amber)}
+.rule b{font-weight:500;color:var(--heading)} .rule small{display:block;color:var(--text-2);font-size:12px}
+.rule.na b{color:var(--text-3);font-weight:400}
+.res{margin:8px 16px 16px;border-radius:var(--r);padding:14px;border:1px solid var(--line)}
+.res .k{font-family:var(--f-cond);text-transform:uppercase;letter-spacing:.09em;font-size:10.5px;font-weight:700}
+.res h5{margin:2px 0 6px;font-size:17px;color:var(--heading)}
+.res p{margin:4px 0 0;font-size:13px;max-width:none}
+.res.idle{background:var(--surface-2)} .res.adm{background:var(--teal-soft);border-color:var(--teal)} .res.adm .k{color:var(--teal)}
+.res.rec{background:var(--red-soft);border-color:var(--red)} .res.rec .k{color:var(--red-ink)}
+.res.blk{background:var(--amber-soft);border-color:var(--amber)} .res.blk .k{color:var(--amber)}
+.res.can{background:var(--surface-2);border-color:var(--text-3)} .res.can .k{color:var(--text-2)}
+.mail{margin-top:8px;padding:9px 11px;border-radius:6px;background:var(--surface);border:1px dashed var(--line);font-size:12.5px;color:var(--text-2)}
+.path{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:8px;font-size:12px}
+.path span{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:2px 7px}
+.path span.g{border-color:var(--red);color:var(--red-ink);font-weight:700}
+.path em{font-style:normal;color:var(--text-3)}
+.cli{font-size:12px;margin-top:4px;color:var(--text-2)} .cli b{color:var(--heading)}
+.slot{border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:var(--surface-2);display:grid;gap:6px}
+.slot.bad{border-color:var(--red)}
+.slot .sh{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px}
+.slot .sh b{color:var(--heading)} .slot .sh small{color:var(--text-3)}
+.slot .act{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.slot .act button{font:inherit;font-size:12px;padding:3px 8px;border-radius:5px;border:1px solid var(--line);background:var(--surface);color:var(--text-2);cursor:pointer}
+.slot .act input[type=file]{font-size:12px;max-width:190px;background:none;border:0;padding:0}
+.slot .st{font-size:12px;font-family:var(--f-mono)} .slot .st.g{color:var(--teal)} .slot .st.r{color:var(--red-ink)}
+.slot label.ck{font-size:12.5px;font-weight:400;color:var(--text-2);display:flex;gap:6px;align-items:center;margin:0}
+.slots{display:grid;gap:8px}
+.slot textarea{min-height:52px}
+.stopmsg{display:none;padding:9px 11px;border-radius:6px;background:var(--amber-soft);border:1px solid var(--amber);font-size:13px}
+.stopmsg.on{display:block}
+.csim{display:grid;gap:14px;grid-template-columns:minmax(0,1fr);margin-top:14px}
+@media (min-width:860px){.csim{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.dq{background:var(--surface);border:1px solid var(--line-soft);border-left:4px solid var(--amber);border-radius:var(--r);padding:10px 14px}
+.dq.done{border-left-color:var(--teal)}
+.dq b{color:var(--heading);display:block;font-size:14px} .dq p{margin:3px 0 0;font-size:13px;color:var(--text-2);max-width:none}
+.dq .who{font-family:var(--f-cond);text-transform:uppercase;letter-spacing:.08em;font-size:10.5px;font-weight:700;color:var(--text-3)}
+.dqs{display:grid;gap:8px;margin-top:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.obj{display:grid;gap:10px;margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.obj .card p{font-size:13.5px}
+.obj .card small{display:block;margin-top:8px;font-size:12px;color:var(--teal);font-weight:500}
+</style>
+
+
+<style>[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="fio"></div>
+  <div class="topbar-in gut">
+    <span class="logochip"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NTQiIGhlaWdodD0iMzUwIiB2aWV3Qm94PSIwIDAgNjU0IDM1MCIgeG1sbnM6YzJwYT0iaHR0cDovL2MycGEub3JnL21hbmlmZXN0Ij4KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwzNTApIHNjYWxlKDAuMSwtMC4xKSI+CjxwYXRoIGQ9Ik0zNzE1IDM0ODkgYy0xMTkzIC00NSAtMjIwMiAtMjYxIC0yODMwIC02MDYgLTQ1OSAtMjUyIC03NTMgLTU4MwotODUyIC05NjAgLTMyIC0xMjMgLTM2IC0yOTIgLTEwIC0zOTMgNTUgLTIwNiAxOTYgLTM5NCA0MTggLTU1MiAxMTEgLTgwIDM4NwotMjIwIDU0NyAtMjc4IDMwNCAtMTA5IDY4NiAtMTkxIDEwNzUgLTIzMCAxNjIgLTE2IDUwMSAtMzAgNTEwIC0yMCAxNCAxMyAtMwoxOCAtMTU1IDUwIC02ODkgMTQzIC0xMTkzIDQwNCAtMTQxNyA3MzMgLTIxMSAzMTEgLTE4MCA3MTcgODIgMTA3MCAyNTMgMzQyCjczOCA2MzMgMTQxNCA4NTEgNDc0IDE1MSAxMTU0IDI4NSAxNjQxIDMyMiA1MCAzIDkyIDEwIDkyIDE1IDAgMTAgLTIxMiA5Ci01MTUgLTJ6IE0yODMwIDIzNjYgYzAgLTQgMjQ5IC0xNzYgMjg4IC0yMDAgOSAtNSAxMiAxNyAxMiA5OCBsMCAxMDYgLTE1MCAwCmMtODIgMCAtMTUwIC0yIC0xNTAgLTR6IE00MTI1IDEwNjYgYy01NCAtMjMgLTczIC02OCAtNTAgLTEyMiAxMCAtMjUgMjkgLTQxCjc1IC02NCA0NCAtMjIgNjAgLTM2IDU4IC00OCAtNSAtMjUgLTM3IC0yNyAtNjkgLTMgLTM0IDI2IC0zOCAyNiAtNjkgMCBsLTI1Ci0yMSAzOCAtMzQgYzMzIC0zMSA0MiAtMzQgOTggLTM0IDU0IDAgNjQgMyA5MCAyOSAyMiAyMyAyOSAzOSAyOSA2OCAwIDQ5IC0yNAo3NiAtOTYgMTA4IC0zMCAxMyAtNTQgMjkgLTU0IDM1IDAgMTggMzAgMjMgNTggOSAzNSAtMTcgMzMgLTE3IDYwIDMgMjAgMTQgMjIKMTkgMTIgMzggLTEzIDI0IC02NyA1MCAtMTAyIDUwIC0xMyAtMSAtMzcgLTcgLTUzIC0xNHogTTQ0MzUgMTA3MiBjLTMyIC0xMQotNTEgLTI1IC02NCAtNDkgLTI5IC01NyAyIC0xMTIgODYgLTE0OSA1NCAtMjQgNjggLTQ4IDM0IC01OSAtMjEgLTYgLTQ5IDIKLTczIDIyIC0xNCAxMyAtMjAgMTIgLTQzIC0zIC0zMyAtMjEgLTI5IC00MiAxNCAtNzEgMzggLTI2IDExMiAtMzEgMTU1IC0xMgozMyAxNSA1OSA3MSA1MSAxMDggLTggMzUgLTI1IDUxIC05MyA4NSAtNTIgMjYgLTYzIDQ4IC0yOCA1NCAxMCAyIDI2IC00IDM2Ci0xMyAxNCAtMTMgMjMgLTE0IDM3IC02IDM5IDIwIDQ0IDM2IDIwIDU5IC0zOSAzNiAtODYgNDggLTEzMiAzNHogTTI0NzAgOTA1CmwwIC0xNjUgMTE1IDAgMTE1IDAgMCA0MCAwIDQwIC03NiAwIC03NSAwIDMgMjggYzMgMjUgNyAyNyA1MSAzMCA0NiAzIDQ3IDQKNDcgMzggbDAgMzQgLTUwIDAgYy00MyAwIC01MCAzIC01MCAyMCAwIDE4IDcgMjAgNzAgMjAgbDcwIDAgMCA0MCAwIDQwIC0xMTAKMCAtMTEwIDAgMCAtMTY1eiBNMjc1MCAxMDY1IGMwIC0zIDIwIC0zNiA0NSAtNzUgMjUgLTM5IDQ1IC03NSA0NSAtODAgMCAtNQotMTkgLTQwIC00MyAtNzcgLTI0IC0zOCAtNDcgLTc0IC01MSAtODAgLTUgLTEwIDUgLTEzIDQyIC0xMyA0OSAwIDUxIDEgNzcgNDYKbDI3IDQ2IDMwIC00NiBjMjkgLTQ0IDMyIC00NiA4MCAtNDYgMzcgMCA0NyAzIDQyIDEzIC01IDYgLTI3IDQyIC01MSA3OSAtMjQKMzYgLTQzIDcxIC00MyA3NyAwIDYgMTkgNDEgNDEgNzggMjMgMzggNDMgNzEgNDYgNzYgMiA0IC0xOCA3IC00NiA3IC00OSAwCi01MSAtMSAtNzEgLTQwIC0xMSAtMjIgLTIyIC00MCAtMjUgLTQwIC0yIDAgLTE0IDE4IC0yNiA0MCAtMjIgMzggLTI1IDQwIC03MQo0MCAtMjYgMCAtNDggLTIgLTQ4IC01eiBNMzEwMCA5MDUgbDAgLTE2NSA0NSAwIDQ1IDAgMCA0OSAwIDQ4IDQ5IDcgYzg4IDEyCjEzNCA3MiAxMTIgMTQ3IC0xOCA2MSAtNTYgNzkgLTE2MyA3OSBsLTg4IDAgMCAtMTY1eiBtMTU0IDc5IGMzMSAtMzAgMTIgLTY0Ci0zNiAtNjQgLTI2IDAgLTI4IDMgLTI4IDQwIDAgMzYgMyA0MCAyNCA0MCAxNCAwIDMyIC03IDQwIC0xNnogTTM0MjAgOTA1IGwwCi0xNjUgNDUgMCA0NSAwIDAgNTAgYzAgNjggMjUgNjggNzEgMCAzMyAtNDggMzYgLTUwIDgyIC01MCAyNiAwIDQ3IDIgNDcgNSAwCjMgLTE4IDMxIC00MSA2MSBsLTQxIDU2IDIxIDIyIGMzMCAzMiAzNyA4NSAxNyAxMjQgLTI1IDQ4IC02MiA2MiAtMTYxIDYyCmwtODUgMCAwIC0xNjV6IG0xNTEgODUgYzM5IC0yMSAxNiAtNzAgLTMzIC03MCAtMjYgMCAtMjggMyAtMjggNDAgMCAzNCAzIDQwCjIxIDQwIDExIDAgMjkgLTUgNDAgLTEweiBNMzc3MCA5MDUgbDAgLTE2NSAxMTUgMCAxMTUgMCAwIDQwIDAgNDAgLTc2IDAgLTc1CjAgMyAyOCBjMyAyNSA3IDI3IDUxIDMwIDQ2IDMgNDcgNCA0NyAzOCBsMCAzNCAtNTAgMCBjLTQzIDAgLTUwIDMgLTUwIDIwIDAKMTggNyAyMCA3MCAyMCBsNzAgMCAwIDQwIDAgNDAgLTExMCAwIC0xMTAgMCAwIC0xNjV6IiBmaWxsPSIjNDk0YTU2Ii8+CjxwYXRoIGQ9Ik0zOTY1IDMwNTAgYy04IC0xMyAtNCAtMTQgMTQwIC00NSA4OTIgLTE4OSAxNDI3IC01MzIgMTU1MiAtOTk1IDI5Ci0xMDYgMjQgLTI5OSAtMTAgLTQyMyAtMTY3IC02MDcgLTg1MyAtMTA2NiAtMjAzMiAtMTM2MSAtMzY3IC05MiAtODY5IC0xNzQKLTEyMjcgLTIwMiAtNTQgLTQgLTg1IC0xMSAtODEgLTE3IDYgLTExIDM4NyAtMyA3MDMgMTQgMTQ5MyA4MSAyNTkwIDQxNCAzMTMwCjk0OSAyNTEgMjQ5IDM5MyA1NDYgMzkzIDgyNSAwIDE2NiAtNDIgMjk2IC0xNDQgNDQ2IC0yODAgNDEzIC0xMDgyIDczMCAtMjAyNAo3OTggLTI1NyAxOSAtMzkzIDIzIC00MDAgMTF6IE00MDA0IDIzODEgYy05NCAtMjMgLTE2OCAtODMgLTIwOCAtMTcwIC0yMCAtNDQKLTIxIC02MSAtMjEgLTQyMSAwIC00MTIgLTEgLTQwNyA2NCAtNDg5IDc2IC05NSAyNTcgLTEzNiA0MTMgLTkxIDU3IDE2IDEzMAo3MSAxNjAgMTIwIDQ0IDcyIDUwIDEzMSA0NiA0OTkgbC0zIDMzNiAtMjggNTcgYy01NSAxMTIgLTE2MyAxNjkgLTMxNiAxNjcKLTQyIC0xIC05MCAtNCAtMTA3IC04eiBtMTQ2IC0yMTIgYzE0IC0yNSAxMyAtNzM0IDAgLTc2MCAtNiAtMTEgLTIxIC0xOSAtMzUKLTE5IC0xNCAwIC0yOSA4IC0zNSAxOSAtNiAxMyAtMTAgMTUyIC0xMCAzODUgMCAzNTEgMSAzNjcgMjAgMzg2IDIyIDIyIDQ1IDE4CjYwIC0xMXogTTQ3OTUgMjM4MSBjLTg0IC0yNCAtMTUzIC03MiAtMTkwIC0xMzUgLTM3IC02MyAtNDkgLTIyMCAtNDIgLTU1NiA2Ci0yOTQgMTIgLTMyNyA3MSAtMzk3IDY4IC03OCAxOTAgLTExOSAyODQgLTkzIDI1IDYgNjIgMjggODYgNTEgbDQzIDM5IDkgLTMzCjEwIC0zMiA5NyAtMyA5NyAtMyAwIDMwNiAwIDMwNSAtMTc1IDAgLTE3NSAwIDAgLTg1IDAgLTg1IDMxIDAgMzEgMCAtMyAtMTE4CmMtNCAtMTI3IC0xMyAtMTUyIC01NCAtMTUyIC00OSAwIC01MCA2IC01MCA0MDcgMCAzNTkgMSAzNzUgMTkgMzg5IDI0IDE3IDI4CjE3IDUyIDAgMTYgLTEzIDE5IC0yOSAyMiAtMTMwIGw0IC0xMTYgMTQ5IDAgMTQ5IDAgMCA2MyBjLTEgMjA2IC00OCAyOTcgLTE4OAozNTkgLTUyIDIzIC0yMjAgMzUgLTI3NyAxOXogTTEyNDIgMTg4OCBjMyAtNDgxIDMgLTQ4MyAyNiAtNTMwIDUzIC0xMDggMTU2Ci0xNjEgMzE3IC0xNjIgMTYxIC0yIDI1NCA0NSAzMDkgMTU2IGwyNiA1MiAwIDQ4MyAwIDQ4MyAtMTQ0IDAgLTE0NSAwIC0zCi00NzMgYy0zIC01MDEgLTQgLTUwNyAtNDkgLTUwNyAtMTAgMCAtMjMgOSAtMjkgMTkgLTYgMTMgLTEwIDE4NSAtMTAgNDkwIGwwCjQ3MSAtMTUxIDAgLTE1MCAwIDMgLTQ4MnogTTIwNDAgMTc5NSBsMCAtNTc1IDEyNSAwIDEyNSAwIDIgMjQ4IDMgMjQ3IDc0Ci0yNDcgNzQgLTI0OCAxMzMgMCAxMzQgMCAwIDU3NSAwIDU3NSAtMTI1IDAgLTEyNSAwIDAgLTI1MiBjMCAtMTM4IC0yIC0yNDkKLTUgLTI0NiAtMyAyIC00MCAxMTQgLTg0IDI0OSBsLTc5IDI0NCAtMTI2IDMgLTEyNiAzIDAgLTU3NnogTTMyNTAgMTc5NSBsMAotNTc1IDI0MCAwIDI0MCAwIDAgMTE1IDAgMTE1IC05MCAwIC05MCAwIDAgNDYwIDAgNDYwIC0xNTAgMCAtMTUwIDAgMCAtNTc1egpNMjgzMCAxNzUwIGwwIC01MzAgMTUwIDAgMTUwIDAgMCA0MjkgMCA0MzAgLTE1MCAxMDEgLTE1MCAxMDEgMCAtNTMxeiIgZmlsbD0iI2RiMDgxMiIvPgo8L2c+Cjwvc3ZnPgo=" alt="Unilog Express"></span>
+    <span class="tb-title">PRD &middot; <b>Ocorrência de Clientes</b> &middot; Proposta de melhorias no Bitrix24</span>
+    <span class="tb-right"><span class="pill red">v1.3 draft</span><span class="pill hide-sm">Com simulador</span></span>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-in gut">
+    <span class="tag">Atendimento ao cliente &bull; Bitrix24 &bull; Ressarcimentos</span>
+    <h1>Ocorrência de Clientes 2.0
+      <span class="thin">Admissibilidade automática, quatro categorias acordadas, evidência obrigatória e gestor no ressarcimento</span>
+    </h1>
+    <div class="fio"></div>
+    <p class="lede">Em GO BEAUTE, 63% das 1.037 tratativas terminaram improcedentes e mais da metade nem era assunto da Unilog. Com esta melhoria, a ocorrência só vira investigação se estiver na categoria acordada, com tudo preenchido e as fotos anexadas. Use o simulador da seção 03 para testar cada impeditivo.</p>
+    <dl class="meta">
+      <div><dt>Processo</dt><dd>Ocorrência de Clientes &mdash; Bitrix24</dd></div>
+      <div><dt>Autor</dt><dd>Filipe Silva</dd></div>
+      <div><dt>Data</dt><dd>23/10/2026</dd></div>
+      <div><dt>Status</dt><dd>Draft para revisão</dd></div>
+      <div><dt>Base</dt><dd>GO BEAUTE &middot; proposta da equipe de tratativa</dd></div>
+    </dl>
+  </div>
+</div>
+
+<div class="shell gut">
+  <nav class="toc" aria-label="Sumário">
+    <p class="toc-h">Neste documento</p>
+    <a href="#contexto"><span>01</span>Problema e proposta</a>
+    <a href="#fluxos"><span>02</span>Fluxo atual e proposto</a>
+    <a href="#simulador"><span>03</span>Simulador de abertura</a>
+    <a href="#encerra"><span>04</span>Encerramento e gestor</a>
+    <a href="#bitrix"><span>05</span>Configuração no Bitrix24</a>
+    <a href="#metricas"><span>06</span>Métricas e deliberações</a>
+  </nav>
+
+  <main>
+  <nav class="toc-m" aria-label="Sumário">
+    <a href="#contexto">01 Proposta</a><a href="#fluxos">02 Fluxos</a><a href="#simulador">03 Simulador</a><a href="#encerra">04 Encerramento</a><a href="#bitrix">05 Bitrix24</a><a href="#metricas">06 Deliberações</a>
+  </nav>
+
+  <!-- 01 -->
+  <section id="contexto">
+    <div class="sec-h"><div class="bar"></div><div><span class="num">01</span><h2>Problema e proposta</h2></div></div>
+    <p>Hoje o cliente abre a ocorrência na Central de Tickets (Alô Uni) com um tipo amplo, uma descrição livre e qualquer anexo. Todo envio vira tarefa, e é o analista quem descobre se o caso é da Unilog e se dá para analisar. Na reunião de 23/10 isso apareceu como duas reclamações: <strong>o cliente abre o que não é da Unilog</strong> e <strong>a evidência anexada não basta</strong>.</p>
+    <div class="stats">
+      <div class="stat"><div class="n">571<small>&nbsp;fora do escopo</small></div><div class="l">55% das 1.037 tratativas: transporte de terceiros (325), pedido do consumidor (192), volume fora do padrão (31), qualidade (23).</div></div>
+      <div class="stat"><div class="n">67<small>&nbsp;duplicadas</small></div><div class="l">Ocorrências abertas de novo para o mesmo pedido.</div></div>
+      <div class="stat"><div class="n">72<small>&nbsp;sem evidência</small></div><div class="l">Em 63 delas faltou a foto da embalagem, da etiqueta e do fechamento. Quase todo chamado tem anexo (2.520 de 2.534), mas não o certo.</div></div>
+      <div class="stat"><div class="n">9<small>&nbsp;status</small></div><div class="l">na conclusão da tarefa, cinco deles repetidos, e nenhum leva o ressarcimento ao gestor.</div></div>
+    </div>
+
+    <h3>O que muda</h3>
+    <div class="obj">
+      <div class="card"><span class="kicker">1 · Categorias</span><h5>Só as quatro acordadas</h5><p>Falta, sobra e troca para todos. Transporte só para cliente Fulfillment com transporte no contrato.</p><small>Corta até 571 casos fora do escopo</small></div>
+      <div class="card"><span class="kicker">2 · Admissibilidade</span><h5>Automática, antes da tarefa</h5><p>Funil próprio confere categoria, integridade, CNPJ, EAN e duplicidade. Recusa fica registrada com motivo.</p><small>Duplicadas (67) não viram tarefa</small></div>
+      <div class="card"><span class="kicker">3 · Campos e fotos</span><h5>Tudo obrigatório</h5><p>NF, volume, EAN e quantidade, descrição, e uma foto por campo: etiqueta, topo e interior. Sem foto, só com justificativa.</p><small>Sai a etapa “Informações incompletas”</small></div>
+      <div class="card"><span class="kicker">4 · Encerramento</span><h5>Status limpo e gestor</h5><p>Três perguntas no lugar de 9 status. Todo ressarcimento passa pelo gestor antes da aprovação de custo.</p><small>Ressarcimento com dono</small></div>
+    </div>
+
+    <details class="more">
+      <summary>O que o analista escreve hoje no parecer <small>base dos números</small></summary>
+      <div class="in">
+        <div class="tw"><table>
+          <thead><tr><th>Parecer mais comum</th><th style="width:80px">Vezes</th><th>O que resolve na abertura</th></tr></thead>
+          <tbody>
+            <tr><td>“Fora do escopo… relacionado à etapa de entrega/transporte”</td><td class="num-c">325</td><td>Transporte só como categoria para cliente com transporte no contrato.</td></tr>
+            <tr><td>“Fora do escopo… solicitação do próprio consumidor”</td><td class="num-c">192</td><td>Categoria inexistente no formulário.</td></tr>
+            <tr><td>“Necessário envio de evidências… embalagem externa, etiqueta e condições de integridade/fechamento”</td><td class="num-c">63</td><td>Fotos da etiqueta e do topo da caixa obrigatórias.</td></tr>
+            <tr><td>“Fita não padrão Unilog” e “etiqueta não é padrão Unilog”</td><td class="num-c">58</td><td>Foto do topo mostra fita e etiqueta.</td></tr>
+            <tr><td>“Arquivos não suportados… .png .jpeg”</td><td class="num-c">2</td><td>Só JPG e PNG. Hoje chegam 188 arquivos em WEBP, JFIF, AVIF e MP4.</td></tr>
+          </tbody>
+        </table></div>
+        <h4>Premissas</h4>
+        <ul>
+          <li>Admissível não quer dizer procedente. A admissibilidade só garante que o caso pode ser investigado.</li>
+          <li>A admissibilidade olha o que é objetivo. O conteúdo das fotos é avaliado por uma pessoa, na investigação.</li>
+          <li>Abrir a caixa para conferir não é violação. Os sinais de violação são formalizados com cada cliente.</li>
+          <li>Fora do escopo: prazos (SLA), levar o parecer da planilha Rastreio ao sistema e integração com o WMS.</li>
+        </ul>
+        <p class="cmp-src">Fontes: Rastreio – Collab 2, export de tasks de 22/10/2026 (GO BEAUTE), apresentação “Ocorrências GO BEAUTE — Rastreio x Tasks” e proposta de melhoria da equipe de tratativa.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- 02 -->
+  <section id="fluxos">
+    <div class="sec-h"><div class="bar"></div><div><span class="num">02</span><h2>Fluxo atual e proposto</h2></div></div>
+    <p class="sub">Cada linha é uma etapa. Em vermelho o que é novo, em âmbar o problema de hoje.</p>
+    <div class="cmp-head" aria-hidden="true"><span></span><span class="h-a">Hoje</span><span class="h-p">Com a melhoria</span></div>
+    <div class="cmp">
+      <div class="crow">
+        <div class="cph"><span class="cn">Entrada</span><span class="cs">Cliente</span></div>
+        <div class="cc a warn"><span class="cl">Hoje</span><b>Formulário Alô Uni</b><p>Tipos amplos, descrição livre, anexo em qualquer formato.</p><span class="tagx w">55% fora do escopo</span></div>
+        <div class="cc p new"><span class="cl">Com a melhoria</span><b>Quatro categorias e campos obrigatórios</b><p>Transporte só aparece para cliente com transporte no contrato. Uma foto por campo.</p><span class="tagx n">novo</span></div>
+      </div>
+      <div class="crow">
+        <div class="cph"><span class="cn">0 · Admissibilidade</span><span class="cs">Sistema · funil próprio</span></div>
+        <div class="cc a warn empty"><span class="cl">Hoje</span><b>Não existe</b><p>Todo envio vira tarefa. O analista filtra depois.</p><span class="tagx w">tudo vira tarefa</span></div>
+        <div class="cc p new"><span class="cl">Com a melhoria</span><b>Validação automática</b><ul class="br"><li><i class="ok">Admitida</i>Cria a ocorrência e a tarefa</li><li><i class="no">Recusada</i>Motivo ao cliente, registrada no funil</li><li><i class="aj">Duplicada</i>Cancelada e vinculada à original</li></ul><span class="tagx n">novo</span></div>
+      </div>
+      <div class="crow">
+        <div class="cph"><span class="cn">1 e 2 · Recebida e retorno inicial</span><span class="cs">Sistema e responsável</span></div>
+        <div class="cc a warn"><span class="cl">Hoje</span><b>Análise inicial</b><ul class="br"><li><i>Informações incompletas</i>Pausa de 1 dia útil, sem limite</li><li><i>Fora do escopo</i>Cancelado depois de analisado</li></ul><span class="tagx w">volta sem limite</span></div>
+        <div class="cc p new"><span class="cl">Com a melhoria</span><b>Só admitidas, sem “Informações incompletas”</b><p>Evidência extra, se precisar, vira tarefa com prazo. Sem resposta, fecha como inconclusivo.</p><span class="tagx n">novo</span></div>
+      </div>
+      <div class="crow">
+        <div class="cph"><span class="cn">3 e 4 · Investigação e conclusão</span><span class="cs">Setor responsável</span></div>
+        <div class="cc a warn"><span class="cl">Hoje</span><b>Lista de 9 status</b><p>Resultado, solução e quem paga misturados. Muitas vezes o parecer fica só na planilha.</p><span class="tagx w">repetido</span></div>
+        <div class="cc p new"><span class="cl">Com a melhoria</span><b>Resultado, solução e quem paga</b><ul class="br"><li><i class="ok">Procedente</i>Com ou sem ressarcimento</li><li><i class="no">Não procedente</i>Encerra</li><li><i class="aj">Inconclusivo</i>Encerra sem ressarcimento</li></ul><span class="tagx n">novo</span></div>
+      </div>
+      <div class="crow">
+        <div class="cph"><span class="cn">4.1 · Aprovação do Gestor</span><span class="cs">Gestor do responsável</span></div>
+        <div class="cc a warn empty"><span class="cl">Hoje</span><b>Não existe</b><p>Ressarcimento vai direto para a Aprovação Logística ou para Ocorrência de Transporte.</p><span class="tagx w">sem dono</span></div>
+        <div class="cc p new"><span class="cl">Com a melhoria</span><b>Todo ressarcimento, em até 8 h úteis</b><ul class="br"><li><i class="ok">Aprovar</i>Segue para a aprovação de custo</li><li><i class="aj">Ajustar</i>Volta para a conclusão</li><li><i class="no">Reprovar</i>Procedente sem ressarcimento</li></ul><span class="tagx n">novo</span></div>
+      </div>
+      <div class="crow">
+        <div class="cph"><span class="cn">7 a 9 · Custo e pagamento</span><span class="cs">Logística, Transporte, Financeiro</span></div>
+        <div class="cc a"><span class="cl">Hoje</span><b>Aprovação Logística, ND e pagamento</b></div>
+        <div class="cc p"><span class="cl">Com a melhoria</span><b>Igual, só com o que o gestor aprovou</b></div>
+      </div>
+    </div>
+    <p class="cmp-src">Fonte do fluxo atual: mapa do fluxo de Ocorrência de Clientes (Manual de Atendimento v000 de 22/09/2025 e mapeamento das automações).</p>
+  </section>
+
+  <!-- 03 -->
+  <section id="simulador">
+    <div class="sec-h"><div class="bar"></div><div><span class="num">03</span><h2>Simulador de abertura</h2></div></div>
+    <p class="sub">Preencha como um cliente faria, ou carregue um cenário pronto. O painel mostra ao vivo cada regra do formulário e da admissibilidade, e o envio mostra o desfecho e o e-mail que o cliente recebe. Dados fictícios.</p>
+    <div class="presets" id="presets" role="group" aria-label="Cenários prontos"></div>
+
+    <div class="sim">
+      <form class="form" id="sf" novalidate>
+        <div class="form-h"><b>Alô Uni · Registrar ocorrência</b><span>Simulador</span></div>
+        <div class="form-b">
+          <div class="fld" id="f-cnpj"><label for="cnpj">CNPJ da empresa <i>*</i></label><input id="cnpj" inputmode="numeric" placeholder="00.000.000/0000-00" autocomplete="off"><div class="cli" id="cliInfo">Base fictícia: 11.222.333/0001-81 (com transporte) · 11.444.777/0001-61 (sem transporte)</div></div>
+          <div class="fld"><label for="cat">Categoria <i>*</i></label><select id="cat"></select></div>
+          <div class="fld" id="f-int"><label for="integ">Como a embalagem chegou? <i>*</i></label>
+            <select id="integ"><option value="ok">Íntegra, aberta só para conferir</option><option value="vio">Com sinal de violação antes de abrir (fita trocada ou rasgada, amassada, molhada, furada)</option></select></div>
+          <div class="stopmsg" id="intMsg"></div>
+          <div class="row2">
+            <div class="fld" id="f-nf"><label for="nf">Nota fiscal <i>*</i></label><input id="nf" placeholder="Nº" autocomplete="off"></div>
+            <div class="fld" id="f-vol"><label for="vol">Volume afetado <i>*</i></label><select id="vol"><option value="">Escolha</option><option>1 de 1</option><option>1 de 2</option><option>2 de 2</option><option>1 de 3</option><option>2 de 3</option><option>3 de 3</option></select></div>
+          </div>
+          <div class="row2">
+            <div class="fld" id="f-ean"><label for="ean" id="eanL">EAN esperado <i>*</i></label><input id="ean" inputmode="numeric" placeholder="só números" autocomplete="off"></div>
+            <div class="fld" id="f-qtd"><label for="qtd" id="qtdL">Qtd. faltante <i>*</i></label><input id="qtd" type="number" min="1" placeholder="0"></div>
+          </div>
+          <div class="row2" id="trocaRow">
+            <div class="fld" id="f-ean2"><label for="ean2">EAN recebido <i>*</i></label><input id="ean2" inputmode="numeric" placeholder="só números" autocomplete="off"></div>
+            <div class="fld" id="f-qtd2"><label for="qtd2">Qtd. recebida <i>*</i></label><input id="qtd2" type="number" min="1" placeholder="0"></div>
+          </div>
+          <div class="fld" id="f-desc"><label for="desc">Descrição detalhada <i>*</i></label><textarea id="desc" placeholder="O que você observou e quando identificou."></textarea><div class="help" id="descCount">0 de 80 caracteres</div></div>
+          <div class="fld"><label>Fotos <i>*</i></label><div class="slots" id="slots"></div></div>
+        </div>
+        <div class="form-f"><button class="btn" type="submit">Enviar ocorrência</button><button class="btn ghost" type="button" id="clr">Limpar</button></div>
+      </form>
+
+      <div class="panel" aria-live="polite">
+        <div class="panel-h">O que o Bitrix24 confere <span>ao vivo</span></div>
+        <div class="rg"><h6>Formulário · bloqueia o envio</h6><div id="rf"></div></div>
+        <div class="rg"><h6>Admissibilidade · automática, depois do envio</h6><div id="ra"></div></div>
+        <div class="res idle" id="res"><span class="k">Desfecho</span><h5>Aguardando envio</h5><p>Preencha o formulário ou escolha um cenário e clique em Enviar ocorrência.</p></div>
+      </div>
+    </div>
+
+    <details class="more">
+      <summary>Categorias aceitas e o que fica de fora <small>números de GO BEAUTE</small></summary>
+      <div class="in">
+        <div class="mv">
+          <div class="mv-col in"><h5>Aceitas <small>acordadas com o cliente</small></h5>
+            <div class="mvi"><b>Falta de produto</b><span>Recebido menos que o pedido ou a NF.</span><em><strong>197</strong>procedentes</em></div>
+            <div class="mvi"><b>Sobra de produto</b><span>Recebido mais que o pedido ou a NF.</span><em><strong>19</strong>procedentes</em></div>
+            <div class="mvi"><b>Troca de produto</b><span>Recebido diferente do previsto.</span><em><strong>70</strong>procedentes</em></div>
+            <div class="mvi"><b>Transporte</b><span>Só Fulfillment com transporte no contrato.</span><em><strong>só</strong>Fulfillment</em></div>
+          </div>
+          <div class="mv-col out"><h5>Não entram <small>orienta o cliente</small></h5>
+            <div class="mvi"><b>Transporte de terceiros</b><span>Violado, amassado, molhado, atraso, extravio.</span><em><strong>325</strong>improced.</em></div>
+            <div class="mvi"><b>Pedido do consumidor</b><span>Troca, desistência, reembolso: SAC do cliente.</span><em><strong>192</strong>improced.</em></div>
+            <div class="mvi"><b>Qualidade do produto</b><span>Vazamento pela tampa, defeito, validade.</span><em><strong>23</strong>improced.</em></div>
+            <div class="mvi"><b>Avaria e divergência de recebimento</b><span>Saem do formulário por decisão da equipe. Canal a definir.</span><em><strong>20 · 250</strong>proc. · tarefas</em></div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details class="more">
+      <summary>Campos e regras em tabela <small>para quem vai configurar</small></summary>
+      <div class="in">
+        <div class="tw"><table>
+          <thead><tr><th>Campo</th><th>Tipo no Bitrix24</th><th>Regra</th></tr></thead>
+          <tbody>
+            <tr><td><strong>CNPJ</strong></td><td>Cadeia</td><td>14 dígitos, dígito verificador, cadastrado na base.</td></tr>
+            <tr><td><strong>Categoria</strong></td><td>Lista</td><td>Falta, sobra, troca. Transporte só com “Transporte no escopo = sim” na empresa.</td></tr>
+            <tr><td><strong>Integridade</strong></td><td>Lista</td><td>Íntegra ou com sinal de violação. Não aparece em Transporte.</td></tr>
+            <tr><td><strong>Nota fiscal</strong></td><td>Cadeia</td><td>Vincula ao pedido. Usada na busca de duplicidade (NF + CNPJ).</td></tr>
+            <tr><td><strong>Volume afetado</strong></td><td>Lista</td><td>Qual caixa, em pedidos com mais de um volume.</td></tr>
+            <tr><td><strong>EAN e quantidade</strong></td><td>Cadeia + inteiro, até 5 linhas</td><td>Falta: esperado e faltante. Sobra: recebido e excedente. Troca: esperado e recebido. Transporte: afetado.</td></tr>
+            <tr><td><strong>Descrição</strong></td><td>Texto</td><td>Mínimo de 80 caracteres: fato e momento da identificação. Hoje 916 de 2.534 têm menos.</td></tr>
+            <tr><td><strong>Fotos</strong></td><td>Arquivo, um campo por foto</td><td>JPG ou PNG, até 10 MB. Vazio só com “Não tenho esta foto” + justificativa.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </details>
+
+    <details class="more">
+      <summary>Fotos exigidas e quando a foto não existe <small>proposta da equipe</small></summary>
+      <div class="in">
+        <div class="tw"><table>
+          <thead><tr><th>Foto</th><th class="c">Exigência</th><th>Para que serve</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Etiqueta Unilog</strong></td><td class="c"><span class="b ss">obrigatória</span></td><td>Rastrear o volume.</td></tr>
+            <tr><td><strong>Topo da caixa</strong></td><td class="c"><span class="b ss">obrigatória</span></td><td>Fita gomada, corte de quem abriu, sinais de violação.</td></tr>
+            <tr><td><strong>Produtos no interior</strong></td><td class="c"><span class="b ss">obrigatória</span></td><td>Conteúdo e enchimento como chegaram.</td></tr>
+            <tr><td><strong>Produto com EAN</strong></td><td class="c"><span class="b ss">troca e sobra</span></td><td>O item recebido que não era o esperado.</td></tr>
+            <tr><td><strong>Caixa lacrada por fora</strong></td><td class="c"><span class="b prod">quando houver</span></td><td>Embalagem antes de abrir. Muitas vezes o cliente só percebe o problema depois.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="shots" id="shots"></div>
+        <div class="callout"><span class="kicker">Quando a foto não existe</span><p>“Não tenho esta foto” abre uma justificativa obrigatória. A ocorrência é admitida com a marca <strong>Exceção de evidência</strong>, e a equipe avalia se dá para concluir. Se não der, fecha como inconclusivo, sem ressarcimento.</p></div>
+        <div class="yesno">
+          <div class="yn"><h5><span class="b ok">serve</span>Permite concluir</h5><ul><li>Original, nítida, em JPG ou PNG.</li><li>Etiqueta, fita e EAN legíveis.</li><li>Uma situação por foto, no campo certo.</li></ul></div>
+          <div class="yn no"><h5><span class="b ss">não serve</span>Leva a inconclusivo</h5><ul><li>Só o produto, sem etiqueta nem topo.</li><li>Tremida, escura ou cortada.</li><li>Montagem, catálogo ou outro pedido.</li><li>Documento pessoal ou dado bancário.</li></ul></div>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- 04 -->
+  <section id="encerra">
+    <div class="sec-h"><div class="bar"></div><div><span class="num">04</span><h2>Encerramento e aprovação do gestor</h2></div></div>
+    <p>Ao concluir a tarefa, o analista hoje escolhe entre 9 status. Cinco começam com “Concluído – Ocorrência procedente” e misturam resultado, solução e quem paga, e nenhum leva o caso ao gestor. A proposta troca a lista por três perguntas encadeadas, com justificativa obrigatória. <strong>Solução = Ressarcimento</strong> leva o card à etapa 4.1 · Aprovação do Gestor, seja quem for que pague.</p>
+
+    <div class="csim">
+      <form class="form" id="cf" novalidate>
+        <div class="form-h"><b>Concluir tarefa · simulador</b><span>Investigação</span></div>
+        <div class="form-b">
+          <div class="fld"><label for="r1">1. Resultado da investigação</label><select id="r1"><option value="">Escolha</option><option value="pro">Procedente</option><option value="nao">Não procedente</option><option value="inc">Inconclusivo</option><option value="can">Cancelado</option></select></div>
+          <div class="fld" id="w2"><label for="r2">2. Solução</label><select id="r2"><option value="sem">Sem ressarcimento</option><option value="res">Ressarcimento</option><option value="dev">Devolução pela transportadora</option></select></div>
+          <div class="fld" id="w3"><label for="r3">3. Quem paga</label><select id="r3"><option value="uni">Unilog</option><option value="tra">Transportadora</option><option value="div">Dividido Unilog/transportadora</option></select></div>
+          <div class="fld" id="w4"><label for="r4">Motivo do cancelamento</label><select id="r4"><option value="dup">Duplicidade</option><option value="des">Desistência do cliente</option><option value="ind">Abertura indevida</option></select></div>
+          <div class="fld" id="w5"><label for="r5">Decisão do gestor</label><select id="r5"><option value="apr">Aprovar</option><option value="aju">Ajustar (motivo obrigatório)</option><option value="rep">Reprovar (motivo obrigatório)</option></select></div>
+        </div>
+      </form>
+      <div class="panel"><div class="panel-h">Para onde o card vai <span>ao vivo</span></div><div class="res idle" id="cres"><span class="k">Destino</span><h5>Escolha o resultado</h5><p>“[não ajustado]” deixa de ser aceito: sem resultado, a tarefa não conclui.</p></div></div>
+    </div>
+
+    <details class="more">
+      <summary>De → para dos 9 status de hoje <small>nada se perde</small></summary>
+      <div class="in"><div class="tw"><table>
+        <thead><tr><th>Status de hoje</th><th>Resultado</th><th>Solução / motivo</th><th>Próximo passo</th></tr></thead>
+        <tbody>
+          <tr><td>Ocorrência não procedente</td><td>Não procedente</td><td>—</td><td>Encerra e comunica</td></tr>
+          <tr><td>Ocorrência procedente</td><td>Procedente</td><td>Sem ressarcimento</td><td>Encerra e comunica</td></tr>
+          <tr><td>Procedente (ressarcimento Unilog)</td><td>Procedente</td><td>Ressarcimento · Unilog</td><td><strong>Gestor</strong> → Aprovação Logística</td></tr>
+          <tr><td>Procedente (ressarcimento transportadora)</td><td>Procedente</td><td>Ressarcimento · Transportadora</td><td><strong>Gestor</strong> → Ocorrência de Transporte</td></tr>
+          <tr><td>Procedente (ressarcimento Unilog/transportadora)</td><td>Procedente</td><td>Ressarcimento · Dividido</td><td><strong>Gestor</strong> → as duas aprovações</td></tr>
+          <tr><td>Procedente (devolução transportadora)</td><td>Procedente</td><td>Devolução pela transportadora</td><td>Encerra e abre Ocorrência de Transporte</td></tr>
+          <tr><td>Cancelado – falta de retorno do cliente</td><td>Inconclusivo</td><td>—</td><td>Encerra sem ressarcimento</td></tr>
+          <tr><td>Cancelado – por solicitação do cliente</td><td>Cancelado</td><td>Desistência do cliente</td><td>Encerra</td></tr>
+          <tr><td>Outro motivo para cancelamento</td><td>Cancelado</td><td>Duplicidade ou abertura indevida</td><td>Encerra. “Outro” deixa de existir</td></tr>
+        </tbody>
+      </table></div></div>
+    </details>
+
+    <details class="more">
+      <summary>Classificações de encerramento e regras do gestor</summary>
+      <div class="in">
+        <div class="tw"><table>
+          <thead><tr><th>Classificação</th><th>Quando usar</th></tr></thead>
+          <tbody>
+            <tr><td><span class="b fila">Recusada</span></td><td>Não passou na admissibilidade. Não houve investigação.</td></tr>
+            <tr><td><span class="b fila">Cancelada</span></td><td>Só duplicidade, desistência do cliente ou abertura indevida.</td></tr>
+            <tr><td><span class="b ss">Não procedente</span></td><td>Investigada e indeferida, com justificativa.</td></tr>
+            <tr><td><span class="b prod">Inconclusivo</span></td><td>Sem decisão sustentada. Encerra sem ressarcimento.</td></tr>
+            <tr><td><span class="b ok">Procedente</span></td><td>Sem ressarcimento, com devolução pela transportadora ou com ressarcimento aprovado e pago.</td></tr>
+          </tbody>
+        </table></div>
+        <h4>Aprovação do gestor</h4>
+        <ul>
+          <li><strong>Quem:</strong> o chefe do departamento do responsável pelo card, ou o substituto cadastrado. Quem investiga não aprova o próprio ressarcimento.</li>
+          <li><strong>O que vê:</strong> categoria, NF, volume, EAN e quantidades, descrição, fotos, conclusão, valor e centro de custo.</li>
+          <li><strong>Prazo:</strong> 8 horas úteis, lembrete com 4 e escalonamento para o nível acima (a confirmar).</li>
+          <li><strong>Ajustar e Reprovar</strong> exigem motivo. Ajustar volta para a conclusão sem recalcular o prazo do cliente.</li>
+          <li>No caso de entrega analisado no mapa do fluxo, 38 ressarcimentos estavam parados na Aprovação Logística e 9 já tinham sido reprovados lá.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- 05 -->
+  <section id="bitrix">
+    <div class="sec-h"><div class="bar"></div><div><span class="num">05</span><h2>Configuração no Bitrix24</h2></div></div>
+    <p class="sub">Passo a passo agrupado por bloco. Teste antes com um card de teste.</p>
+
+    <details class="more" open>
+      <summary>Funil de admissibilidade <small>5 passos</small></summary>
+      <div class="in"><div class="steps">
+        <div class="step"><span class="where">CRM › Ocorrência de Clientes › Funis</span><b>Criar o funil “Admissibilidade”</b><p>Recebida → Em validação → Admitida · Recusada · Cancelada por duplicidade. O formulário passa a criar o card aqui.</p></div>
+        <div class="step"><span class="where">CRM › Empresas › Campos</span><b>Campo “Transporte no escopo”</b><p>Sim ou não, na empresa. A categoria Transporte depende dele.</p></div>
+        <div class="step"><span class="where">Automação › Recebida</span><b>Validar o que é objetivo</b><p>Robôs com condição para categoria e integridade. Webhook de saída da Inovação para CNPJ, EAN e busca de NF + CNPJ já aberta.</p></div>
+        <div class="step"><span class="where">Automação › Recusada e Cancelada</span><b>Avisar o cliente</b><p>Campo “Motivo da recusa” preenchido pelo robô e e-mail com o motivo e a orientação.</p></div>
+        <div class="step"><span class="where">Automação › Admitida</span><b>Levar para a investigação</b><p>Mover para a etapa 1 do funil de investigação, onde rodam a regra de responsável e a tarefa. Conferir se o robô muda de funil no seu portal. Se não, usar processo de negócio.</p></div>
+      </div></div>
+    </details>
+    <details class="more">
+      <summary>Formulário e campos <small>4 passos</small></summary>
+      <div class="in"><div class="steps">
+        <div class="step"><span class="where">Configurações › Campos</span><b>Criar os campos</b><p>Categoria, Integridade, NF, Volume, EAN/Qtd (até 5 linhas), Descrição, um campo de arquivo por foto com “Não tenho esta foto” e Justificativa, e “Exceção de evidência”.</p></div>
+        <div class="step"><span class="where">Formulário CRM › Regras de campo</span><b>Mostrar só o que a categoria pede</b><p>Troca mostra esperado e recebido. Transporte só no link dos clientes com transporte, por campo oculto preenchido pelo link.</p></div>
+        <div class="step"><span class="where">Formulário › Campos de arquivo</span><b>Uma foto por campo</b><p>Só JPG e PNG. “Não tenho esta foto” esconde o arquivo e exige justificativa.</p></div>
+        <div class="step"><span class="where">Funil de investigação › Etapas</span><b>Remover “Informações incompletas”</b><p>Evidência extra vira tarefa vinculada com prazo.</p></div>
+      </div></div>
+    </details>
+    <details class="more">
+      <summary>Status de conclusão e gestor <small>4 passos</small></summary>
+      <div class="in"><div class="steps">
+        <div class="step"><span class="where">Tarefa › Parâmetros da atribuição</span><b>Trocar os 9 status por três campos</b><p>Resultado, Solução, Quem paga e Motivo do cancelamento. Status antigos ficam inativos para manter o histórico. “[não ajustado]” deixa de ser aceito.</p></div>
+        <div class="step"><span class="where">Automação › conclusão da tarefa</span><b>Uma regra para o gestor</b><p>Solução = Ressarcimento move para 4.1. Os robôs de Aprovação Logística e Ocorrência de Transporte passam a disparar na saída aprovada da 4.1.</p></div>
+        <div class="step"><span class="where">Funil de investigação › Etapa 4.1</span><b>Processo de negócio de aprovação</b><p>Aprovador = chefe do responsável, prazo de 8 horas úteis, comentário obrigatório em Ajustar e Reprovar, e campos Decisão, Motivo, Aprovado por e Data.</p></div>
+        <div class="step"><span class="where">Funil de investigação › Etapas finais</span><b>Encerramentos</b><p>Não procedente, Inconclusivo, Cancelado, Procedente sem ressarcimento, Procedente com ressarcimento.</p></div>
+      </div></div>
+    </details>
+  </section>
+
+  <!-- 06 -->
+  <section id="metricas">
+    <div class="sec-h"><div class="bar"></div><div><span class="num">06</span><h2>Métricas e deliberações</h2></div></div>
+    <div class="tw"><table>
+      <thead><tr><th>Indicador (base GO BEAUTE)</th><th>Hoje</th><th>Meta em 60 dias</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Tarefas fora do escopo</strong></td><td class="num-c">55% (571)</td><td>Abaixo de 10%</td></tr>
+        <tr><td><strong>Duplicadas que viram tarefa</strong></td><td class="num-c">67</td><td>Zero</td></tr>
+        <tr><td><strong>Sem evidência ou inconclusivo</strong></td><td class="num-c">6,9% (72)</td><td>Abaixo de 3%</td></tr>
+        <tr><td><strong>Anexos fora de JPG/PNG</strong></td><td class="num-c">188</td><td>Zero</td></tr>
+        <tr><td><strong>Recusas por motivo e cliente</strong></td><td class="num-c">não medido</td><td>Acompanhar para treinar</td></tr>
+        <tr><td><strong>Tempo na Aprovação do Gestor</strong></td><td class="num-c">não existe</td><td>Até 8 horas úteis</td></tr>
+      </tbody>
+    </table></div>
+    <p class="cmp-src">Ganhos esperados, não comprovados: medir antes e depois da implantação.</p>
+
+    <h3>Decidido em 23/10</h3>
+    <div class="dqs">
+      <div class="dq done"><b>Categorias</b><p>Só as quatro da equipe.</p></div>
+      <div class="dq done"><b>Recusas</b><p>Funil de admissibilidade separado.</p></div>
+      <div class="dq done"><b>Admissibilidade</b><p>Automática. Conteúdo da foto avaliado na investigação, mas a foto é obrigatória.</p></div>
+      <div class="dq done"><b>Inconclusivo</b><p>Encerra sem ressarcimento.</p></div>
+    </div>
+    <h3>A deliberar</h3>
+    <div class="dqs">
+      <div class="dq"><span class="who">Operação</span><b>Avaria e divergência de recebimento</b><p>Saíram do formulário: 20 procedentes e 250 tarefas em GO BEAUTE. Outro canal ou deixam de ser ocorrência?</p></div>
+      <div class="dq"><span class="who">Equipe de tratativa</span><b>Contestações e backlog</b><p>Contestação de recusa e de não procedente, e as 2.219 tarefas pendentes de GO BEAUTE.</p></div>
+      <div class="dq"><span class="who">Inovação</span><b>Configuração técnica</b><p>Mudança de funil por robô, webhook de CNPJ, EAN e duplicidade, e link do formulário por cliente.</p></div>
+      <div class="dq"><span class="who">Comercial e clientes</span><b>Categorias e integridade por cliente</b><p>Aprovar categorias, sinais de violação e exceções. Marcar quem tem transporte.</p></div>
+      <div class="dq"><span class="who">Gestão</span><b>Gestor e prazo</b><p>Quem aprova, prazo de 8 horas e para quem escala.</p></div>
+      <div class="dq"><span class="who">Comercial</span><b>Comunicação e vigência</b><p>Comunicado e data de início. 10 pessoas abrem 43% dos chamados de GO BEAUTE: treinar essas primeiro.</p></div>
+    </div>
+
+    <details class="more">
+      <summary>Critérios de aceite <small>para homologar</small></summary>
+      <div class="in">
+<div class="gk"><span class="kw">Funcionalidade:</span> <span class="sc">Admissibilidade</span>
+  <span class="kw">Cenário:</span> transporte sem contrato
+    <span class="kw">Dado</span> empresa com <span class="st">"Transporte no escopo = não"</span>
+    <span class="kw">Então</span> a categoria Transporte não aparece
+  <span class="kw">Cenário:</span> falta com sinal de violação
+    <span class="kw">Então</span> o card vai para Recusada, sem tarefa, com orientação ao cliente
+  <span class="kw">Cenário:</span> NF já aberta para o mesmo CNPJ
+    <span class="kw">Então</span> Cancelada por duplicidade, vinculada à original
+  <span class="kw">Cenário:</span> CNPJ ou EAN com dígito inválido, ou CNPJ fora da base
+    <span class="kw">Então</span> Recusada com o motivo
+  <span class="kw">Cenário:</span> tudo certo
+    <span class="kw">Então</span> etapa 1 da investigação e tarefa criada</div>
+<div class="gk"><span class="kw">Funcionalidade:</span> <span class="sc">Formulário</span>
+  <span class="kw">Cenário:</span> troca sem EAN recebido, descrição curta, campo vazio
+    <span class="kw">Então</span> o formulário não envia e marca o campo
+  <span class="kw">Cenário:</span> foto em WEBP
+    <span class="kw">Então</span> o arquivo é recusado: <span class="st">"Envie em JPG ou PNG"</span>
+  <span class="kw">Cenário:</span> “Não tenho esta foto” com justificativa
+    <span class="kw">Então</span> admitida com Exceção de evidência = sim</div>
+<div class="gk"><span class="kw">Funcionalidade:</span> <span class="sc">Conclusão e gestor</span>
+  <span class="kw">Cenário:</span> Procedente + Ressarcimento, qualquer pagador
+    <span class="kw">Então</span> 4.1 Aprovação do Gestor, antes de qualquer aprovação de custo
+  <span class="kw">Cenário:</span> sem Resultado
+    <span class="kw">Então</span> a tarefa não conclui
+  <span class="kw">Cenário:</span> Inconclusivo
+    <span class="kw">Então</span> encerra sem ressarcimento, com justificativa e e-mail</div>
+      </div>
+    </details>
+    <details class="more">
+      <summary>Riscos</summary>
+      <div class="in"><ul class="grey">
+        <li><strong>O cliente declara “íntegra” para passar.</strong> As fotos do topo e da etiqueta mostram a verdade na investigação.</li>
+        <li><strong>Casos legítimos sem canal.</strong> Avaria e recebimento saem do formulário até haver outro caminho.</li>
+        <li><strong>Gestor vira gargalo.</strong> Prazo com escalonamento e tempo na 4.1 mostram cedo.</li>
+      </ul></div>
+    </details>
+  </section>
+  </main>
+</div>
+
+<footer><div class="foot-in gut"><p>Unilog Express | Ocorrência de Clientes · PRD de melhorias v1.3 draft</p><p>Base: mapa do fluxo atual, análise GO BEAUTE, proposta da equipe de tratativa e estrutura do PRD Pedidos Sem Saldo. © 2026 Unilog Express.</p></div></footer>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  /* guia de fotos */
+  var I={
+    caixa:'<svg viewBox="0 0 100 80"><path class="svgfill" d="M15 28 L50 14 L85 28 L85 66 L50 76 L15 66 Z"/><path class="svgln" d="M15 28 L50 40 L85 28 M50 40 L50 76"/><rect class="svgredf" x="58" y="48" width="18" height="10" rx="1"/></svg>',
+    fita:'<svg viewBox="0 0 100 80"><path class="svgfill" d="M15 30 L50 18 L85 30 L85 66 L50 76 L15 66 Z"/><path class="svgred" d="M32 24 L68 36 M50 18 L50 30"/><path class="svgln" d="M15 30 L50 42 L85 30"/></svg>',
+    ean:'<svg viewBox="0 0 100 80"><rect class="svgfill" x="16" y="14" width="68" height="52" rx="3"/><path class="svgln" d="M28 24 V52 M33 24 V52 M40 24 V52 M44 24 V52 M51 24 V52 M58 24 V52 M62 24 V52 M69 24 V52 M73 24 V52"/><path class="svgred" d="M26 60 H74"/></svg>',
+    aberta:'<svg viewBox="0 0 100 80"><path class="svgfill" d="M18 34 L50 46 L82 34 L82 68 L50 76 L18 68 Z"/><path class="svgln" d="M18 34 L6 22 M82 34 L94 22 M18 34 L50 24 L82 34"/><path class="svgred" d="M34 54 q8 -8 16 0 q8 8 16 0"/></svg>',
+    lacr:'<svg viewBox="0 0 100 80"><path class="svgfill" d="M15 28 L50 14 L85 28 L85 66 L50 76 L15 66 Z"/><path class="svgln" d="M15 28 L50 40 L85 28 M50 40 L50 76"/><path class="svgred" d="M32 21 L68 33"/></svg>'
+  };
+  /* slots de foto */
+  var SL=[{k:'eti',n:'Etiqueta Unilog',ic:'caixa',d:'Legível, na própria caixa.',req:1},{k:'topo',n:'Topo da caixa',ic:'fita',d:'Fita gomada e o corte de quem abriu.',req:1},{k:'int',n:'Produtos no interior',ic:'aberta',d:'Conteúdo e enchimento como chegaram.',req:1},{k:'ean',n:'Produto com EAN',ic:'ean',d:'O item recebido, em troca e sobra.',req:1,only:['troca','sobra']},{k:'lac',n:'Caixa lacrada por fora',ic:'lacr',d:'Antes de abrir, quando houver.',req:0}];
+  $('shots').innerHTML=SL.map(function(s){return '<div class="shot"><div class="pic">'+I[s.ic]+'</div><div class="tx"><span class="ix">'+(s.only?'troca e sobra':s.req?'obrigatória':'quando houver')+'</span><b>'+s.n+'</b><span>'+s.d+'</span></div></div>'}).join('');
+
+  /* base fictícia */
+  var BASE={'11222333000181':{n:'Cliente Exemplo A',t:true},'11444777000161':{n:'Cliente Exemplo B',t:false}};
+  var ABERTAS=[{nf:'000999',cnpj:'11222333000181',id:'#9001'}];
+  var CATS={falta:'Falta de produto',sobra:'Sobra de produto',troca:'Troca de produto',transp:'Transporte'};
+  var LBL={falta:['EAN esperado','Qtd. faltante'],sobra:['EAN recebido','Qtd. excedente'],troca:['EAN esperado','Qtd. esperada'],transp:['EAN afetado','Qtd. afetada']};
+  var ph={}; /* k -> {f:'jpg'|'webp'|'', no:bool, j:''} */
+  function dig(s){return (s||'').replace(/\D/g,'')}
+  function cnpjOk(c){c=dig(c);if(c.length!==14||/^(\d)\1+$/.test(c))return false;function dv(n){var w=n===12?[5,4,3,2,9,8,7,6,5,4,3,2]:[6,5,4,3,2,9,8,7,6,5,4,3,2],s=0;for(var i=0;i<n;i++)s+=c[i]*w[i];var r=s%11;return r<2?0:11-r}return dv(12)==c[12]&&dv(13)==c[13]}
+  function eanOk(e){e=dig(e);if([8,13,14].indexOf(e.length)<0)return false;var s=0;e.slice(0,-1).split('').reverse().forEach(function(d,i){s+=d*(i%2?1:3)});return (10-s%10)%10==e.slice(-1)}
+  function cli(){return BASE[dig($('cnpj').value)]}
+  function slotsFor(c){return SL.filter(function(s){return !s.only||s.only.indexOf(c)>=0})}
+  function fillCats(keep){var c=cli(),sel=$('cat'),cur=keep||sel.value||'falta';var ks=['falta','sobra','troca'];if(c&&c.t)ks.push('transp');sel.innerHTML=ks.map(function(k){return '<option value="'+k+'">'+CATS[k]+'</option>'}).join('');sel.value=ks.indexOf(cur)>=0?cur:'falta'}
+  function drawSlots(){
+    var c=$('cat').value;
+    $('slots').innerHTML=slotsFor(c).map(function(s){var p=ph[s.k]||{};return '<div class="slot" id="sl-'+s.k+'"><div class="sh"><b>'+s.n+'</b><small>'+(s.req?'obrigatória':'quando houver')+'</small></div>'+
+      (p.no?'':'<div class="act"><input type="file" data-k="'+s.k+'" aria-label="'+s.n+'"><button type="button" data-sim="'+s.k+'|jpg">Simular JPG</button><button type="button" data-sim="'+s.k+'|webp">Simular WEBP</button>'+(p.f?'<button type="button" data-sim="'+s.k+'|">Remover</button>':'')+'</div><span class="st '+(p.f==='jpg'?'g':p.f?'r':'')+'">'+(p.f==='jpg'?'foto.jpg anexada':p.f?'foto.'+p.f+' (formato não aceito)':'nenhuma foto')+'</span>')+
+      (s.req?'<label class="ck"><input type="checkbox" data-no="'+s.k+'"'+(p.no?' checked':'')+'> Não tenho esta foto</label>'+(p.no?'<textarea data-j="'+s.k+'" placeholder="Justifique por que a foto não existe (mín. 10 caracteres)">'+esc(p.j||'')+'</textarea>':''):'')+'</div>'}).join('');
+    [].forEach.call($('slots').querySelectorAll('input[type=file]'),function(i){i.onchange=function(){var f=i.files[0];if(!f)return;var m=f.name.toLowerCase().match(/\.(\w+)$/);ph[i.dataset.k]=Object.assign(ph[i.dataset.k]||{},{f:m?m[1].replace('jpeg','jpg'):'?'});if(['jpg','png'].indexOf(ph[i.dataset.k].f)>=0)ph[i.dataset.k].f='jpg';drawSlots();live()}});
+    [].forEach.call($('slots').querySelectorAll('[data-sim]'),function(b){b.onclick=function(){var a=b.dataset.sim.split('|');ph[a[0]]=Object.assign(ph[a[0]]||{},{f:a[1]});drawSlots();live()}});
+    [].forEach.call($('slots').querySelectorAll('[data-no]'),function(c){c.onchange=function(){ph[c.dataset.no]=Object.assign(ph[c.dataset.no]||{},{no:c.checked,f:''});drawSlots();live()}});
+    [].forEach.call($('slots').querySelectorAll('[data-j]'),function(t){t.oninput=function(){ph[t.dataset.j].j=t.value;live()}});
+  }
+  function layout(){
+    var c=$('cat').value;
+    $('eanL').innerHTML=LBL[c][0]+' <i>*</i>';$('qtdL').innerHTML=LBL[c][1]+' <i>*</i>';
+    $('trocaRow').hidden=c!=='troca';$('f-int').hidden=c==='transp';
+    var v=c!=='transp'&&$('integ').value==='vio',k=cli();
+    $('intMsg').textContent=v?(k&&k.t?'Com sinal de violação antes de abrir, use a categoria Transporte.':'Sinal de violação antes de abrir é caso de transporte, que não está no contrato. Se enviar, a ocorrência será recusada.'):'';
+    $('intMsg').classList.toggle('on',v);
+  }
+  function check(){
+    var c=$('cat').value,F=[],A=[],k=cli(),d=dig($('cnpj').value);
+    function f(ok,t,s){F.push({ok:ok,t:t,s:s})}
+    f(d.length===14,'CNPJ preenchido',d.length===14?'':'Informe os 14 dígitos.');
+    f(!!$('nf').value.trim(),'Nota fiscal preenchida');
+    f(!!$('vol').value,'Volume afetado escolhido');
+    f(!!dig($('ean').value)&&+$('qtd').value>=1,LBL[c][0]+' e '+LBL[c][1].toLowerCase()+' preenchidos');
+    if(c==='troca')f(!!dig($('ean2').value)&&+$('qtd2').value>=1,'EAN e quantidade recebidos preenchidos','Obrigatório na troca.');
+    var dl=$('desc').value.trim().length;f(dl>=80,'Descrição com 80 caracteres ou mais',dl<80?dl+' de 80.':'');
+    var miss=[],fmt=[],exc=[];slotsFor(c).forEach(function(s){var p=ph[s.k]||{};if(p.f&&p.f!=='jpg')fmt.push(s.n);if(!s.req)return;if(p.no){if((p.j||'').trim().length>=10)exc.push(s.n);else miss.push(s.n+' (justificativa)')}else if(p.f!=='jpg')miss.push(s.n)});
+    f(!miss.length,'Fotos obrigatórias anexadas ou justificadas',miss.length?'Falta: '+miss.join(', ')+'.':exc.length?'Exceção: '+exc.join(', ')+'.':'');
+    f(!fmt.length,'Fotos em JPG ou PNG',fmt.length?'Formato não aceito: '+fmt.join(', ')+'.':'');
+    function a(st,t,s,why){A.push({st:st,t:t,s:s,why:why})}
+    var cv=cnpjOk(d);
+    a(d.length<14?'na':cv?'ok':'ko','CNPJ com dígito verificador válido','', 'CNPJ inválido');
+    a(!cv?'na':k?'ok':'ko','CNPJ cadastrado na base',k?k.n+(k.t?' · transporte no contrato':' · sem transporte'):'', 'CNPJ não cadastrado');
+    a(!k?'na':(c!=='transp'||k.t)?'ok':'ko','Categoria acordada com o cliente',c==='transp'?'Transporte':CATS[c],'Categoria não acordada');
+    a(c==='transp'?'na':$('integ').value==='ok'?'ok':'ko','Embalagem sem sinal de violação',c==='transp'?'Não se aplica a Transporte.':'', 'Sinal de violação');
+    var eans=[$('ean').value];if(c==='troca')eans.push($('ean2').value);var ef=eans.filter(function(e){return dig(e)});
+    a(!ef.length?'na':ef.every(eanOk)?'ok':'ko','EAN com dígito verificador válido','', 'EAN inválido');
+    var dup=ABERTAS.filter(function(o){return o.cnpj===d&&o.nf===$('nf').value.trim()})[0];
+    a(!$('nf').value.trim()||!cv?'na':dup?'ko':'ok','Sem ocorrência aberta para a mesma NF e CNPJ',dup?'Já existe '+dup.id+'.':'Base fictícia: NF 000999 já está aberta para o Cliente A.', 'dup');
+    return {F:F,A:A,exc:exc,dup:dup};
+  }
+  function ico(st){return st==='ok'?'✓':st==='ko'?'✕':'–'}
+  function live(){
+    layout();var r=check();
+    $('rf').innerHTML=r.F.map(function(x){return '<div class="rule '+(x.ok?'ok':'ko')+'"><i>'+(x.ok?'✓':'✕')+'</i><div><b>'+esc(x.t)+'</b>'+(x.s?'<small>'+esc(x.s)+'</small>':'')+'</div></div>'}).join('');
+    $('ra').innerHTML=r.A.map(function(x){return '<div class="rule '+x.st+'"><i>'+ico(x.st)+'</i><div><b>'+esc(x.t)+'</b>'+(x.s?'<small>'+esc(x.s)+'</small>':'')+'</div></div>'}).join('');
+    var k=cli(),d=dig($('cnpj').value);
+    $('cliInfo').innerHTML=k?'<b>'+k.n+'</b> · '+(k.t?'Fulfillment com transporte no contrato: categoria Transporte disponível.':'sem transporte no contrato: categoria Transporte não aparece.'):(d.length===14?'CNPJ não encontrado na base.':'Base fictícia: 11.222.333/0001-81 (com transporte) · 11.444.777/0001-61 (sem transporte)');
+    return r;
+  }
+  function out(cls,k,h,p,mail,path){$('res').className='res '+cls;$('res').innerHTML='<span class="k">'+k+'</span><h5>'+h+'</h5><p>'+p+'</p>'+(path?'<div class="path">'+path+'</div>':'')+(mail?'<div class="mail"><b>E-mail ao cliente:</b> '+mail+'</div>':'')}
+  var MSG={'CNPJ inválido':['Recusada · dado inválido','O CNPJ informado não é válido. Confira os 14 dígitos e abra uma nova ocorrência.'],
+    'CNPJ não cadastrado':['Recusada · CNPJ não cadastrado','Não encontramos este CNPJ entre os clientes da Unilog. Confira o número ou fale com seu executivo de conta.'],
+    'Categoria não acordada':['Recusada · categoria não acordada','Transporte não faz parte do escopo do seu contrato. Trate o caso com a transportadora responsável pela entrega.'],
+    'Sinal de violação':['Recusada · sinal de violação','A embalagem chegou com sinal de violação antes de ser aberta, o que indica ocorrência no transporte. Trate o caso com a transportadora responsável pela entrega.'],
+    'EAN inválido':['Recusada · dado inválido','O EAN informado não é válido. Confira o código de barras do produto e abra uma nova ocorrência.']};
+  $('sf').addEventListener('submit',function(e){e.preventDefault();var r=live();
+    var bad=r.F.filter(function(x){return !x.ok});
+    if(bad.length){out('blk','Formulário bloqueado','O envio não acontece',bad.length+' item'+(bad.length>1?'s':'')+' pendente'+(bad.length>1?'s':'')+': '+bad.map(function(x){return x.t.toLowerCase()}).join('; ')+'. Nenhum card é criado.');return}
+    var ko=r.A.filter(function(x){return x.st==='ko'})[0];
+    if(ko&&ko.why==='dup'){out('can','Cancelada por duplicidade','Não vira tarefa','Já existe a ocorrência '+r.dup.id+' para esta NF e CNPJ. O card é cancelado e vinculado a ela.','Já existe uma ocorrência aberta para esta nota fiscal ('+r.dup.id+'). Acompanhe por ela.','<span>Formulário</span><em>→</em><span>Admissibilidade</span><em>→</em><span class="g">Cancelada por duplicidade</span>');return}
+    if(ko){var m=MSG[ko.why];out('rec','Recusada na admissibilidade',m[0],'Fica registrada no funil de admissibilidade com o motivo. Nenhuma tarefa é criada.',m[1],'<span>Formulário</span><em>→</em><span>Admissibilidade</span><em>→</em><span class="g">Recusada</span>');return}
+    out('adm','Admitida'+(r.exc.length?' com Exceção de evidência':''),'Vira ocorrência e tarefa',(r.exc.length?'Sem foto de '+r.exc.join(', ')+', com justificativa. A equipe avalia na investigação. ':'')+'O card vai para a etapa 1 do funil de investigação, com responsável e tarefa.','Recebemos sua ocorrência de '+CATS[$('cat').value].toLowerCase()+' e ela já está em análise.','<span>Formulário</span><em>→</em><span>Admissibilidade</span><em>→</em><span class="g">1 · Ocorrência recebida</span><em>→</em><span>Tarefa criada</span>');
+  });
+
+  /* cenários */
+  var OKD='Ao abrir o volume 1 de 1 da NF 000123 para conferir, em 21/10 às 10h, faltava 1 unidade do hidratante facial. A fita estava intacta.';
+  function base(o){return Object.assign({cnpj:'11.222.333/0001-81',cat:'falta',integ:'ok',nf:'000123',vol:'1 de 1',ean:'7891234567895',qtd:'1',ean2:'',qtd2:'',desc:OKD,ph:{eti:{f:'jpg'},topo:{f:'jpg'},int:{f:'jpg'},ean:{f:'jpg'}}},o)}
+  var PS=[
+    {l:'Tudo certo',c:'ok',d:base({})},
+    {l:'Foto não existe, com justificativa',c:'ok',d:base({ph:{eti:{f:'jpg'},topo:{no:true,j:'Caixa descartada antes de perceber a falta.'},int:{f:'jpg'}}})},
+    {l:'Transporte com contrato',c:'ok',d:base({cat:'transp',desc:'Volume 1 de 1 da NF 000123 chegou amassado e molhado em 21/10, com 1 unidade do hidratante quebrada dentro.'})},
+    {l:'Transporte sem contrato',d:base({cnpj:'11.444.777/0001-61',cat:'transp'})},
+    {l:'Falta com sinal de violação',d:base({cnpj:'11.444.777/0001-61',integ:'vio'})},
+    {l:'NF já aberta (duplicada)',d:base({nf:'000999'})},
+    {l:'CNPJ com dígito errado',d:base({cnpj:'11.222.333/0001-80'})},
+    {l:'CNPJ fora da base',d:base({cnpj:'12.345.678/0001-95'})},
+    {l:'EAN inválido',d:base({ean:'7891234567890'})},
+    {l:'Troca sem EAN recebido',d:base({cat:'troca'})},
+    {l:'Descrição curta',d:base({desc:'Faltou produto.'})},
+    {l:'Sem foto do topo',d:base({ph:{eti:{f:'jpg'},int:{f:'jpg'}}})},
+    {l:'Foto em WEBP',d:base({ph:{eti:{f:'jpg'},topo:{f:'webp'},int:{f:'jpg'}}})}
+  ];
+  $('presets').innerHTML=PS.map(function(p,i){return '<button type="button" data-p="'+i+'" class="'+(p.c||'')+'" aria-pressed="false">'+p.l+'</button>'}).join('');
+  function load(d){$('cnpj').value=d.cnpj;fillCats(d.cat);$('integ').value=d.integ;$('nf').value=d.nf;$('vol').value=d.vol;$('ean').value=d.ean;$('qtd').value=d.qtd;$('ean2').value=d.ean2;$('qtd2').value=d.qtd2;$('desc').value=d.desc;ph=JSON.parse(JSON.stringify(d.ph));$('descCount').textContent=d.desc.length+' de 80 caracteres';drawSlots();live()}
+  [].forEach.call($('presets').querySelectorAll('button'),function(b){b.onclick=function(){[].forEach.call($('presets').children,function(x){x.setAttribute('aria-pressed',x===b)});var p=PS[+b.dataset.p];load(p.d);
+    if(p.l==='Transporte sem contrato'){$('res').className='res blk';$('res').innerHTML='<span class="k">Impeditivo no formulário</span><h5>Transporte não aparece</h5><p>O Cliente Exemplo B não tem transporte no contrato, então a categoria nem é oferecida. Se o card chegar por outro meio, a admissibilidade recusa por categoria não acordada.</p>'}
+    else $('sf').requestSubmit?$('sf').requestSubmit():$('sf').dispatchEvent(new Event('submit',{cancelable:true}))}});
+  $('clr').onclick=function(){[].forEach.call($('presets').children,function(x){x.setAttribute('aria-pressed','false')});load({cnpj:'',cat:'falta',integ:'ok',nf:'',vol:'',ean:'',qtd:'',ean2:'',qtd2:'',desc:'',ph:{}});$('res').className='res idle';$('res').innerHTML='<span class="k">Desfecho</span><h5>Aguardando envio</h5><p>Preencha o formulário ou escolha um cenário.</p>'};
+  ['cnpj','nf','vol','ean','qtd','ean2','qtd2','integ'].forEach(function(id){$(id).addEventListener('input',function(){if(id==='cnpj'){fillCats();drawSlots()}live()});$(id).addEventListener('change',live)});
+  $('cat').onchange=function(){drawSlots();live()};
+  $('desc').oninput=function(){$('descCount').textContent=$('desc').value.trim().length+' de 80 caracteres';live()};
+  fillCats('falta');drawSlots();live();
+
+  /* simulador de conclusão */
+  function cupd(){
+    var r1=$('r1').value,r2=$('r2').value,r3=$('r3').value,r4=$('r4').value,r5=$('r5').value;
+    $('w2').hidden=r1!=='pro';$('w3').hidden=!(r1==='pro'&&r2==='res');$('w4').hidden=r1!=='can';$('w5').hidden=!(r1==='pro'&&r2==='res');
+    var c=$('cres'),P=function(a){return '<div class="path">'+a.map(function(x){return '<span'+(x[1]?' class="g"':'')+'>'+x[0]+'</span>'}).join('<em>→</em>')+'</div>'};
+    function show(cls,k,h,p,path){c.className='res '+cls;c.innerHTML='<span class="k">'+k+'</span><h5>'+h+'</h5><p>'+p+'</p>'+(path?P(path):'')}
+    if(!r1)return show('blk','Tarefa não conclui','Escolha o resultado','“[não ajustado]” não é aceito.');
+    if(r1==='nao')return show('can','Encerramento','Não procedente','Justificativa obrigatória e e-mail ao cliente.',[['Investigação'],['Não procedente',1]]);
+    if(r1==='inc')return show('can','Encerramento','Inconclusivo · sem ressarcimento','Justificativa obrigatória e e-mail ao cliente.',[['Investigação'],['Inconclusivo',1]]);
+    if(r1==='can')return show('can','Encerramento','Cancelada · '+{dup:'duplicidade',des:'desistência do cliente',ind:'abertura indevida'}[r4],'Só esses três motivos. “Outro” deixa de existir.',[['Investigação'],['Cancelada',1]]);
+    if(r2==='sem')return show('adm','Encerramento','Procedente sem ressarcimento','Registra a solução e comunica o cliente. Não passa pelo gestor.',[['Investigação'],['Procedente sem ressarcimento',1]]);
+    if(r2==='dev')return show('adm','Encerramento','Procedente · devolução pela transportadora','Encerra e abre Ocorrência de Transporte. Não há pagamento, então não passa pelo gestor.',[['Investigação'],['Procedente'],['Ocorrência de Transporte',1]]);
+    var depois={uni:[['Aprovação Logística'],['Informações ressarcimento'],['Financeiro'],['Procedente com ressarcimento',1]],tra:[['Ocorrência de Transporte',1]],div:[['Aprovação Logística + Ocorrência de Transporte'],['Financeiro'],['Procedente com ressarcimento',1]]}[r3];
+    if(r5==='aju')return show('blk','Gestor pediu ajuste','Volta para a conclusão','Motivo obrigatório. O prazo do cliente não é recalculado.',[['Investigação'],['4.1 Aprovação do Gestor',1],['Volta para a conclusão']]);
+    if(r5==='rep')return show('can','Gestor reprovou','Procedente sem ressarcimento','Motivo obrigatório e comunicação ao cliente.',[['Investigação'],['4.1 Aprovação do Gestor',1],['Procedente sem ressarcimento']]);
+    show('adm','Gestor aprovou','Segue para o custo','Registra quem aprovou e quando. Só agora rodam as automações de custo.',[['Investigação'],['4.1 Aprovação do Gestor',1]].concat(depois));
+  }
+  ['r1','r2','r3','r4','r5'].forEach(function(id){$(id).onchange=cupd});cupd();
+
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){links.forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id)})}})},{rootMargin:'-30% 0px -60% 0px'});document.querySelectorAll('main section').forEach(function(s){io.observe(s)})}
+})();
+</script>
+
+</body>
+</html>
